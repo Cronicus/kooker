@@ -1,9 +1,12 @@
 import database as db
 import pprint
 
-#admin = db.DB_Connector()
 admin = db.DB_AdminConnector("topchef", "cookin")
-#admin._run_updgrade_script()
+
+#admin._clear_db()
+
+admin.create_new_unit ("kg")
+admin.create_new_ingredient ()
 
 #admin.create_new_recipe ("Mutta", "Indian", [["Butter", 4], ["Fish", 2]], 120, 2, "Mutte me jaa")
 #admin.create_new_recipe ("Muth", "Indian", [["Butter", 0.3], ["Salt", 1]], 10, 1, "Pondy laga")

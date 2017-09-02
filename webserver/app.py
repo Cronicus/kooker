@@ -35,7 +35,7 @@ class KookerUser(Resource):
         return (cmd, args)
 
     def _parse_cmd_get(self, table, pieces):
-        if table in ["recipe", "ingredient", "quisine", "unit"]:
+        if table in ["recipe", "ingredient", "cuisine", "unit"]:
             (cmd, args) = (table, self._parse_cmd_generic(pieces))
         
         else:
@@ -51,7 +51,7 @@ class KookerUser(Resource):
             filter_type = pieces[0]
             (cmd, args) = self._parse_cmd_search_recipe(filter_type, pieces[1:])
         
-        elif table in ["ingredient", "quisine", "unit"]:
+        elif table in ["ingredient", "cuisine", "unit"]:
             (cmd, args) = (table, self._parse_cmd_generic(pieces))
         
         else:
@@ -78,16 +78,16 @@ class KookerUser(Resource):
         else:
             error()
         
-        quisine_filter = args[1]
+        cuisine_filter = args[1]
         if (args[1] == ''):
-            quisine_filter = None
+            cuisine_filter = None
         
         try:
             veg_only = bool(int(args[2]))
         except:
             veg_only = False
         
-        return cmd, (key_filter, quisine_filter, veg_only)
+        return cmd, (key_filter, cuisine_filter, veg_only)
     
     def _parse_cmd_generic(self, args):
         if (len(args) > 2):

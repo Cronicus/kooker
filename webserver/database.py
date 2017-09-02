@@ -34,7 +34,7 @@ class DB_Connector:
         
         units       = self._db.units
         recipes     = self._db.recipes
-        quisines    = self._db.quisines
+        cuisines    = self._db.cuisines
         ingredients = self._db.ingredients
         
         item_qty = []
@@ -54,8 +54,8 @@ class DB_Connector:
                               "unit"     : units.find_one({"_id": item["unit"]})["name"]})
         
         recipe["items"]   = item_qty
-        recipe["quisine"] = quisines.find_one(
-                                {"_id": recipe["quisine"]}, 
+        recipe["cuisine"] = cuisines.find_one(
+                                {"_id": recipe["cuisine"]}, 
                                 {"_id": 0, "name": 1})["name"]
         
         del recipe["quantities"]
@@ -104,24 +104,24 @@ class DB_Connector:
         
         return unit
     
-    def get_quisine (self, name):
-        # Get quisine by name
+    def get_cuisine (self, name):
+        # Get cuisine by name
         
-        quisines = self._db.quisines
-        quisine = quisines.find_one({"name": name}, {"_id": 0})
+        cuisines = self._db.cuisines
+        cuisine = cuisines.find_one({"name": name}, {"_id": 0})
         
-        return quisine
+        return cuisine
     
-    def _get_quisine (self, name):
-        # Get quisine by name
+    def _get_cuisine (self, name):
+        # Get cuisine by name
         
-        quisines = self._db.quisines
-        return quisines.find_one({"name": name})
+        cuisines = self._db.cuisines
+        return cuisines.find_one({"name": name})
     
     # Search Methods ---------------------------------------------------------
 
-    def search_recipe_by_name (self, string, quisine=None, only_veg=False):
-        # Search recipe by name, quisine_type
+    def search_recipe_by_name (self, string, cuisine=None, only_veg=False):
+        # Search recipe by name, cuisine_type
         
         recipes = self._db.recipes
         
@@ -131,20 +131,20 @@ class DB_Connector:
         if (only_veg):
             search_params["veg"] = True
         
-        if quisine:
-            quisine_query_result = self._get_quisine(quisine)
+        if cuisine:
+            cuisine_query_result = self._get_cuisine(cuisine)
             
-            if not quisine_query_result:
+            if not cuisine_query_result:
                 return []
             
-            search_params["quisine"] = quisine_query_result["_id"]
+            search_params["cuisine"] = cuisine_query_result["_id"]
         
         result = recipes.find(search_params, {"name": 1, "veg": 1, "time": 1, "_id": 0})
         
         return list(result)
     
-    def search_recipe_by_ingredient (self, items=None, quisine=None, only_veg=False):
-        # Search recipe by ingredients, quisine_type
+    def search_recipe_by_ingredient (self, items=None, cuisine=None, only_veg=False):
+        # Search recipe by ingredients, cuisine_type
         
         recipes = self._db.recipes
         item_ids = []
@@ -165,13 +165,13 @@ class DB_Connector:
         if only_veg:
             search_params["veg"] = True
         
-        if quisine:
-            quisine_query_result = self._get_quisine(quisine)
+        if cuisine:
+            cuisine_query_result = self._get_cuisine(cuisine)
             
-            if not quisine_query_result:
+            if not cuisine_query_result:
                 return []
             
-            search_params["quisine"] = quisine_query_result["_id"]
+            search_params["cuisine"] = cuisine_query_result["_id"]
         
         result = recipes.find(search_params, {"name": 1, "veg": 1, "time": 1, "_id": 0})
         
@@ -204,14 +204,14 @@ class DB_Connector:
         return list(result)
         #return json.dumps(result)
     
-    def search_quisine (self, string):
-        # Search quisines by name
+    def search_cuisine (self, string):
+        # Search cuisines by name
         
-        quisines = self._db.quisines
+        cuisines = self._db.cuisines
         
         # Regex for names starting with provided string
         regx = re.compile("^"+string, re.IGNORECASE)
-        result = quisines.find({"name": regx}, {"name": 1, "_id": 0})
+        result = cuisines.find({"name": regx}, {"name": 1, "_id": 0})
         
         return list(result)
 
@@ -235,15 +235,18 @@ class DB_AdminConnector(DB_Connector):
         _db_client.close()
     
     def _run_updgrade_script (self):
+        # Example Scripts :
+        # self._db.cuisine.rename("cuisines")
+        # self._db.recipes.update({}, {"$rename":{"quisine": "cuisine"}}, False, True);
+        # self._db.cuisines.update({}, {"$rename":{"label": "name"}}, False, True);
+        # self._db.units.update({}, {"$rename":{"label": "name"}}, False, True);
         pass
-        #self._db.quisines.update({}, {"$rename":{"label": "name"}}, False, True);
-        #self._db.units.update({}, {"$rename":{"label": "name"}}, False, True);
         
     def _init_db (self):
         # Initialize Database
         # This maynot be necessary as pymongo does it on the go 
         
-        self._db.quisines
+        self._db.cuisines
         self._db.recipes
         self._db.units
         self._db.ingredients
@@ -253,6 +256,7 @@ class DB_AdminConnector(DB_Connector):
         # Clear Database
         
         self._db.quisines.drop()
+        self._db.cuisines.drop()
         self._db.recipes.drop()
         self._db.units.drop()
         self._db.ingredients.drop()
@@ -277,7 +281,7 @@ class DB_AdminConnector(DB_Connector):
     
     # Recipe Methods --------------------------------------------------------
 
-    def create_new_recipe (self, name, quisine, items, time, serves, steps):
+    def create_new_recipe (self, name, cuisine, items, time, serves, steps):
         # Creates a new recipe
 
         recipes = self._db.recipes
@@ -303,17 +307,17 @@ class DB_AdminConnector(DB_Connector):
             if veg and not primary_item["veg"]:
                 veg = False
         
-        quisines = self._db.quisines
+        cuisines = self._db.cuisines
         
-        # Verify quisine types and get quisine ids
-        quisine_query_result =  quisines.find_one({"name": quisine})
-        if not quisine_query_result:
-            raise DB_Exception ("Quisine type " + str(quisine) + " not found!")
-            quisine_ids.append (quisine_query_result["_id"])
+        # Verify cuisine types and get cuisine ids
+        cuisine_query_result =  cuisines.find_one({"name": cuisine})
+        if not cuisine_query_result:
+            raise DB_Exception ("Quisine type " + str(cuisine) + " not found!")
+            cuisine_ids.append (cuisine_query_result["_id"])
         
         new_recipe = {
             "name"       : name,
-            "quisine"    : quisine_query_result["_id"],
+            "cuisine"    : cuisine_query_result["_id"],
             "items"      : item_ids,
             "quantities" : item_qts,
             "time"       : time,
@@ -323,7 +327,7 @@ class DB_AdminConnector(DB_Connector):
         
         recipes.insert_one(new_recipe)
 
-    def modify_recipe (self, name, new_name, quisine, items, time, serves, steps):
+    def modify_recipe (self, name, new_name, cuisine, items, time, serves, steps):
         # Modifies a recipe
         
         recipes = self._db.recipes
@@ -353,17 +357,17 @@ class DB_AdminConnector(DB_Connector):
             if veg and not primary_item["veg"]:
                 veg = False
         
-        quisines = self._db.quisines
+        cuisines = self._db.cuisines
         
-        # Verify quisine types and get quisine ids
-        quisine_query_result =  quisines.find_one({"name": quisine})
-        if not quisine_query_result:
-            raise DB_Exception ("Quisine type " + str(quisine) + " not found!")
-            quisine_ids.append (quisine_query_result["_id"])
+        # Verify cuisine types and get cuisine ids
+        cuisine_query_result =  cuisines.find_one({"name": cuisine})
+        if not cuisine_query_result:
+            raise DB_Exception ("Quisine type " + str(cuisine) + " not found!")
+            cuisine_ids.append (cuisine_query_result["_id"])
         
         updated_recipe = {
             "name"       : new_name,
-            "quisine"    : quisine_query_result["_id"],
+            "cuisine"    : cuisine_query_result["_id"],
             "items"      : item_ids,
             "quantities" : item_qts, 
             "time"       : time,
@@ -581,45 +585,45 @@ class DB_AdminConnector(DB_Connector):
 
     # Quisine Methods --------------------------------------------------------
 
-    def create_new_quisine (self, name):
-        # Creates a new quisine
+    def create_new_cuisine (self, name):
+        # Creates a new cuisine
         
-        quisines = self._db.quisines
+        cuisines = self._db.cuisines
         
-        # Raise exception if quisine exists
-        if quisines.find_one({"name": name}):
+        # Raise exception if cuisine exists
+        if cuisines.find_one({"name": name}):
             raise DB_Exception ("Quisine type " + str(name) + " exists!")
         
-        quisines.insert_one({"name": name})
+        cuisines.insert_one({"name": name})
 
-    def modify_quisines (self, name, new_name):
-        # Modifies an existing quisine
+    def modify_cuisines (self, name, new_name):
+        # Modifies an existing cuisine
         
-        quisines = self._db.quisines
+        cuisines = self._db.cuisines
         
-        # Raise exception if quisine does not exist
-        if not quisines.find_one({"name": name}):
+        # Raise exception if cuisine does not exist
+        if not cuisines.find_one({"name": name}):
             raise DB_Exception ("Quisine type " + str(name) + " does not exist!")
         
-        # Raise exception if quisine with same name already  exist
-        if quisines.find_one({"name": new_name}):
+        # Raise exception if cuisine with same name already  exist
+        if cuisines.find_one({"name": new_name}):
             raise DB_Exception ("Quisine type " + str(name) + " already exists!")
         
-        quisines.update_one({"name": name}, {"name": new_name})
+        cuisines.update_one({"name": name}, {"name": new_name})
 
-    def delete_quisine (self, name):
-        # Deletes a quisine and all associated recipes
+    def delete_cuisine (self, name):
+        # Deletes a cuisine and all associated recipes
         
-        quisines = self._db.quisines
+        cuisines = self._db.cuisines
         recipes = self._db.recipes
         
-        # Find quisine with given name
-        quisine = quisines.find_one({"name": name},{})
-        if (quisine):
-            # Find recipe with given quisine
-            damned_recipes = recipes.find_many({"quisine": quisine["_id"]},{})
+        # Find cuisine with given name
+        cuisine = cuisines.find_one({"name": name},{})
+        if (cuisine):
+            # Find recipe with given cuisine
+            damned_recipes = recipes.find_many({"cuisine": cuisine["_id"]},{})
             for recipe in damned_recipes:
                 recipes.delete_one ({"_id": recipe["_id"]})
         
-        quisines.delete_one ({"quisine": quisine["_id"]})
+        cuisines.delete_one ({"cuisine": cuisine["_id"]})
 
