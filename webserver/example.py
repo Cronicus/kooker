@@ -55,6 +55,6 @@ for res in admin.search_cuisine(""):
     pprint.pprint (admin.get_cuisine(res["name"]))
 
 print "Recipes : "
-for res in admin.search_recipe_by_name("C"):
+for res in admin.search_recipe_by_name(""):
     #pprint.pprint (res)
     pprint.pprint (admin.get_recipe(res["name"]))
