@@ -1,8 +1,8 @@
 # KOOKER WEBSERVER
 
-app.py      : Runs the webserver accepting http requests
-configs.py  : mongoDB server location and authentication
-database.py : Library for accessing the mongoDB server
+app.py      ---> Runs the webserver accepting http requests
+configs.py  ---> mongoDB server location and authentication
+database.py ---> Library for accessing the mongoDB server
 
 # Database Commands
 
