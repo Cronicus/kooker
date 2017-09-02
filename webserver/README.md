@@ -4,7 +4,7 @@ app.py      : Runs the webserver accepting http requests
 configs.py  : mongoDB server location and authentication
 database.py : Library for accessing the mongoDB server
 
-# 1) Database Commands
+# Database Commands
 
 # a) DB_Connector
     
@@ -15,8 +15,8 @@ database.py : Library for accessing the mongoDB server
                             "cuisine" : <cuisine-name>, 
                             "veg"     : <is-veg => true(1) or false(0)>,
                             "items"   : [{"name": <item1>, "quantity": <qty1>, "unit": <unit1>},
-                                        {"name": <item2>, "quantity": <qty2>, "unit": <unit2>},
-                                        {"name": <item3>, "quantity": <qty3>, "unit": <unit3>},
+                                         {"name": <item2>, "quantity": <qty2>, "unit": <unit2>},
+                                         {"name": <item3>, "quantity": <qty3>, "unit": <unit3>},
                                         ...]
                             "time"    : <minutes>,
                             "serves"  : <number-of-people>,
@@ -70,3 +70,26 @@ database.py : Library for accessing the mongoDB server
         returns --->    {
                             "name"    : <recipe-name>
                         }
+
+# a) DB_AdminConnector
+    
+    create_new_recipe (name, cuisine, items, time, serves, steps)
+    modify_recipe     (name, new_name, cuisine, items, time, serves, steps)
+    delete_recipe     (name)
+    
+    create_new_ingredient (name, unit, veg)
+    modify_ingredient     (name, new_name, unit, veg)
+    delete_ingredient     (name)
+    
+    create_new_cuisine (name)
+    modify_cuisines    (name, new_name)
+    delete_cuisine     (name)
+    
+    create_new_unit (name)
+    modify_units    (name, new_name)
+    delete_unit     (name)
+    
+    ingredient_alias       (primary_name, alias_name, force=False)
+    set_ingredient_primary (name)
+    
+    
