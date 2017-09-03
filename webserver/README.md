@@ -71,7 +71,7 @@
                             "name"    : <recipe-name>
                         }
 
-# a) DB_AdminConnector
+# b) DB_AdminConnector
     
     create_new_recipe (name, cuisine, items, time, serves, steps)
     modify_recipe     (name, new_name, cuisine, items, time, serves, steps)
@@ -91,5 +91,3 @@
     
     ingredient_alias       (primary_name, alias_name, force=False)
     set_ingredient_primary (name)
-    
-    

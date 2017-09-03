@@ -1,5 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
+
+#from flask import jsonify
+from bson.json_util import dumps as jsonify
 
 import database as db
 
@@ -108,14 +111,18 @@ class KookerUser(Resource):
         print "CMD : ", func
         print "ARGS : ", args
         
-        res = jsonify(func(*args))
-        print "RES : ", res
-        
-        if (res):
-            return res
-        
-        return jsonify([])
-    
+        try:
+            res = func(*args)
+            print "RES : ", res
+            
+            if (res):
+                return jsonify(res)
+            
+            return jsonify([])
+
+        except:
+            error()
+            
     def get(self, msg):
         return self._parse_and_execute(msg)
 
